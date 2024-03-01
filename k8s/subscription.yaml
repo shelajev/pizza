@@ -1,7 +1,7 @@
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: pizza-store-subscritpion
+  name: pizza-store-subscription
 spec:
   topic: topic
   route: /events

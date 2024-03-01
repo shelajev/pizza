@@ -1,0 +1,83 @@
+### Place orders
+@pizza-store = localhost:8080
+
+### Place a new order
+POST http://{{pizza-store}}/order 
+content-type: application/cloudevents+json
+
+{
+    "customer": {
+      "name": "alice",
+      "email": "alice@email.com"
+    },
+    "items": [
+      {
+      "type":"vegetarian",
+      "amount": 2
+      }
+    ]
+}
+
+### Get the last order that was placed
+GET http://{{pizza-store}}/order
+content-type: application/cloudevents+json
+
+### Send order-in-prep event
+POST http://{{pizza-store}}/events 
+content-type: application/cloudevents+json
+
+{
+    "specversion" : "1.0",
+    "type" : "com.salaboy.event",
+    "data": {
+        "type": "order-in-preparation",
+        "service": "kitchen",
+        "message": "Your Order is in the kitchen.",
+        "order": {
+            "customer":
+                    {
+                        "name":"salaboy",
+                        "email":"salaboy@mail.com"
+                    },
+            "items":[
+                    {
+                        "type":"pepperoni",
+                        "amount":1
+                    }
+                ],
+            "id":"2d62b770-0a20-4f4d-a32a-893f48e831d1",
+            "orderDate":"2023-10-31T18:13:55.571+00:00",
+            "status":"inpreparation"
+        }
+    }
+}
+
+### Send order completed event
+POST http://{{pizza-store}}/events 
+content-type: application/cloudevents+json
+
+{
+    "specversion" : "1.0",
+    "type" : "com.salaboy.event",
+    "service": "store",
+    "message": "Your Order has been delivered.",
+    "data": {
+        "type": "order-completed",
+        "order": {
+            "customer":
+                    {
+                        "name":"salaboy",
+                        "email":"salaboy@mail.com"
+                    },
+            "items":[
+                    {
+                        "type":"pepperoni",
+                        "amount":1
+                    }
+                ],
+            "id":"2d62b770-0a20-4f4d-a32a-893f48e831d1",
+            "orderDate":"2023-10-31T18:13:55.571+00:00",
+            "status":"completed"
+        }
+    }
+}

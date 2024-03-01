@@ -7,6 +7,6 @@ spec:
   version: v1
   metadata:
   - name: brokers # Required. Kafka broker connection setting
-    value:  kafka.default.svc.cluster.local:9092
+    value: kafka.kafka.svc.cluster.local:9092
   - name: authType
     value: "none"  
