@@ -1,0 +1,18 @@
+{
+  "iteration_count": 10000,
+  "duration": 50000,
+  "payload_file": "",
+  "steps": [
+    {
+      "id": 1,
+      "url": "http://34.82.176.152/order",
+      "method": "POST",
+      "payload_file": "pizza-store/order.json",
+      "timeout": 2,
+      "sleep": "300",
+      "headers":{
+        "Content-Type": "application/cloudevents+json"
+      }
+    }
+  ]
+}

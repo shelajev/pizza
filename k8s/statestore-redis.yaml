@@ -9,8 +9,6 @@ spec:
     - name: redisHost
       value: redis-master.redis.svc.cluster.local:6379
     - name: redisPassword
-      secretKeyRef:
-        key: redis-password
-        name: redis-password
+      value: ""
 auth:
   secretStore: kubernetes

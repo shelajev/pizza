@@ -17,10 +17,13 @@ function connect() {
         console.log(publicURL);
         console.log("Activating client")
         stompClient.activate();
+
+        var backgroundColor = response.backgroundColor;
+        console.log("Setting background color to: " + backgroundColor);
+        document.querySelector('header').style.backgroundColor = backgroundColor;
     }).catch((error) => {
         console.error(`Could not get server-info: ${error}`);
     });
-
 };
 
 stompClient.onConnect = (frame) => {
@@ -29,7 +32,6 @@ stompClient.onConnect = (frame) => {
     stompClient.subscribe('/topic/events', (event) => {
         console.log(JSON.parse(event.body));
         showEvent(event.body);
-
     });
 };
 
@@ -133,12 +135,12 @@ function placeOrder() {
         method: "POST",
         body: JSON.stringify({
             customer: {
-                name: "salaboy",
-                email: "salaboy@mail.com",
+                name: "oleg",
+                email: "oleg@mail.com",
             },
             items: [
                 {
-                    "type": "pepperoni",
+                    "type": "vegetarian",
                     "amount": 1,
                 }
             ]

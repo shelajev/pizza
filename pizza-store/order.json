@@ -1,12 +1,12 @@
 {
-    "customer": {
-      "name": "salaboy",
-      "email": "salaboy@mail.com"
-    },
-    "items": [
-      {
-      "type":"pepperoni",
-      "amount": 1
-      }
-    ]
+  "customer": {
+    "name": "alice",
+    "email": "alice@mail.com"
+  },
+  "items": [
+    {
+    "type":"vegetarian",
+    "amount": 1
+    }
+  ]
 }

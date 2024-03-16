@@ -1,0 +1,48 @@
+apiVersion: dapr.io/v1alpha1
+kind: Resiliency
+metadata:
+  name: pizza-resiliency
+scopes:
+  - pizza-store
+  - delivery-service
+  - kitchen-service
+spec:
+  policies:
+    timeouts:
+      general: 5s
+      important: 60s
+      largeResponse: 10s
+    retries:
+      pubsubRetry:
+        policy: constant
+        duration: 5s
+        maxRetries: 10
+      retryForever:
+        policy: exponential
+        maxInterval: 15s
+        maxRetries: -1 
+    circuitBreakers:
+      simpleCB:
+        maxRequests: 1
+        timeout: 30s 
+        trip: consecutiveFailures >= 5
+      pubsubCB:
+        maxRequests: 1
+        interval: 8s
+        timeout: 45s
+        trip: consecutiveFailures > 8
+  targets:
+    components:
+      kvstore:
+        outbound:
+          timeout: general
+          retry: retryForever
+          circuitBreaker: simpleCB
+      pubsub:
+        outbound:
+          retry: pubsubRetry
+          circuitBreaker: pubsubCB
+        inbound:
+          timeout: general
+          retry: retryForever
+          circuitBreaker: pubsubCB

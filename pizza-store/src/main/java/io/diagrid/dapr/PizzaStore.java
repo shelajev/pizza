@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,6 +30,12 @@ import io.dapr.client.DaprClientBuilder;
 import io.dapr.client.domain.CloudEvent;
 import io.dapr.client.domain.State;
 
+import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.EventDetails;
+import dev.openfeature.sdk.FlagEvaluationDetails;
+import dev.openfeature.sdk.OpenFeatureAPI;
+
+
 @SpringBootApplication
 @RestController
 @CrossOrigin(origins = "http://localhost:5173", maxAge = 3600)
@@ -43,12 +50,21 @@ public class PizzaStore {
   @Value("${PUBLIC_IP:localhost}")
   private String publicIp;
 
+  public boolean v2_enabled;
+  public String backgroundColor =  v2_enabled ? "MediumSeaGreen" : "Gold";
+
+  private final OpenFeatureAPI openFeatureAPI;
+
   @GetMapping("/server-info")
   public Info getInfo(){
-    return new Info(publicIp);
+    v2_enabled = getFeatureFlagValue();
+    System.out.println("Feature flag is:" + v2_enabled);
+    backgroundColor =  v2_enabled ? "MediumSeaGreen" : "Gold";
+    System.out.println("Changing color to " + backgroundColor);
+    return new Info(publicIp, backgroundColor);
   }
 
-  public record Info(String publicIp){}
+  public record Info(String publicIp, String backgroundColor){}
 
   private String KEY = "orders";
   private static RestTemplate restTemplate;
@@ -57,13 +73,15 @@ public class PizzaStore {
 
   public static void main(String[] args) {
     SpringApplication.run(PizzaStore.class, args);
-
   }
 
-  public PizzaStore(SimpMessagingTemplate simpMessagingTemplate) {
+  @Autowired
+  public PizzaStore(SimpMessagingTemplate simpMessagingTemplate, OpenFeatureAPI OFApi) {
     this.simpMessagingTemplate = simpMessagingTemplate;
+    this.openFeatureAPI = OFApi;
   }
 
+  // If an event comes in saying the order ready from the kitchen service then prepare the order for delivery
   @PostMapping(path = "/events", consumes = "application/cloudevents+json")
   public void receiveEvents(@RequestBody CloudEvent<Event> event) {
     emitWSEvent(event.getData());
@@ -80,6 +98,7 @@ public class PizzaStore {
         event);
   }
 
+  // Notify the customer that the order is going out for delivery and call the delivery service
   private void prepareOrderForDelivery(Order order){
     store(new Order(order.id, order.customer, order.items, order.orderDate, Status.delivery));
      // Emit Event
@@ -90,6 +109,7 @@ public class PizzaStore {
 
   }
 
+  // A new order was received
   @PostMapping("/order")
   public ResponseEntity<Order> placeOrder(@RequestBody(required = true) Order order, Map<String, String> headers) throws Exception {
     new Thread(new Runnable() {
@@ -111,6 +131,7 @@ public class PizzaStore {
 
   }
 
+  // Get the last order
   @GetMapping("/order")
   public ResponseEntity<Orders> getOrders() {
 
@@ -202,6 +223,7 @@ public class PizzaStore {
     }
   }
 
+  // Save order in state store
   private void store(Order order) {
     try (DaprClient client = (new DaprClientBuilder()).build()) {
       Orders orders = new Orders(new ArrayList<Order>());
@@ -218,6 +240,7 @@ public class PizzaStore {
     }
   }
 
+  // Call kitchen service to make the order
   private void callKitchenService(Order order) {
     restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
@@ -229,6 +252,7 @@ public class PizzaStore {
         daprHttp + "/prepare", request);
   }
 
+  // Call delivery service to deliver the order
   private void callDeliveryService(Order order) {
     restTemplate = new RestTemplate();
     HttpHeaders headers = new HttpHeaders();
@@ -240,6 +264,7 @@ public class PizzaStore {
         daprHttp + "/deliver", request);
   }
 
+  // Return the most recent order
   private Orders loadOrders() {
     try (DaprClient client = (new DaprClientBuilder()).build()) {
       State<Orders> ordersState = client.getState(STATE_STORE_NAME, KEY, null, Orders.class).block();
@@ -252,4 +277,24 @@ public class PizzaStore {
 
   }
 
+  public boolean getFeatureFlagValue(){
+    final Client client = openFeatureAPI.getClient();
+
+    client.onProviderError((EventDetails eventDetails) -> {
+      System.out.println("FlagD Provider Error: " + eventDetails);
+    });
+
+    client.onProviderReady((EventDetails eventDetails)-> {
+      System.out.println("FlagD Provider Ready " + eventDetails);
+    });
+
+    // get a bool flag value
+    boolean flagValue = client.getBooleanValue("v2_enabled", false);
+    FlagEvaluationDetails<Boolean> flagValue1 = client.getBooleanDetails("v2_enabled", false);
+
+    System.out.println("Boolean flagValue is: " + flagValue);
+    System.out.println("EvaluationDetails flagValue1 is: " + flagValue1);
+
+    return flagValue;
+  }
 }

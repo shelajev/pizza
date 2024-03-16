@@ -1,8 +1,9 @@
 ### Place orders
 @pizza-store = localhost:8080
+@pizza-store-k8s = 34.82.176.152
 
 ### Place a new order
-POST http://{{pizza-store}}/order 
+POST http://{{pizza-store-k8s}}/order 
 content-type: application/cloudevents+json
 
 {

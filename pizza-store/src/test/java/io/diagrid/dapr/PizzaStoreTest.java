@@ -32,7 +32,7 @@ public class PizzaStoreTest {
     @Test
     public void testPlaceOrder() throws Exception {
         
-       with().body(new Order(new Customer("salaboy", "salaboy@mail.com"), 
+       with().body(new Order(new Customer("oleg", "oleg@mail.com"), 
                                 Arrays.asList(new OrderItem(PizzaType.pepperoni, 1))))
                                 .contentType(ContentType.JSON)
         .when()

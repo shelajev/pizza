@@ -13,6 +13,8 @@ spec:
         dapr.io/app-port: "8080"
         dapr.io/enabled: "true"
         dapr.io/log-level: "debug"
+        openfeature.dev/enabled: "true"
+        openfeature.dev/featureflagsource: "flag-sources"
       labels:
         app: pizza-store-service
         app.kubernetes.io/name: pizza-store-service
@@ -21,7 +23,7 @@ spec:
     spec:
       containers:
       - name: pizza-store-service
-        image: salaboy/pizza-store:0.1.0
+        image: alicejgibbons/pizza-store:latest
         imagePullPolicy: Always
         env:
         - name: JAVA_OPTS
@@ -30,6 +32,10 @@ spec:
           value: localhost:8080
         - name: STATESTORE_NAME
           value: kvstore
+        - name: FLAGD_PORT
+          value: "8013"
+        - name: FLAGD_HOST
+          value: "localhost"
         livenessProbe:
           httpGet:
             path: /actuator/health
@@ -58,3 +64,4 @@ spec:
   ports:
   - port: 80
     targetPort: 8080
+  type: LoadBalancer
