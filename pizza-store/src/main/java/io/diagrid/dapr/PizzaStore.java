@@ -31,8 +31,10 @@ import io.dapr.client.domain.CloudEvent;
 import io.dapr.client.domain.State;
 
 import dev.openfeature.sdk.Client;
+import dev.openfeature.sdk.EvaluationContext;
 import dev.openfeature.sdk.EventDetails;
 import dev.openfeature.sdk.FlagEvaluationDetails;
+import dev.openfeature.sdk.MutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
 
 
@@ -58,7 +60,6 @@ public class PizzaStore {
   @GetMapping("/server-info")
   public Info getInfo(){
     v2_enabled = getFeatureFlagValue();
-    System.out.println("Feature flag is:" + v2_enabled);
     backgroundColor =  v2_enabled ? "MediumSeaGreen" : "Gold";
     System.out.println("Changing color to " + backgroundColor);
     return new Info(publicIp, backgroundColor);
@@ -281,19 +282,19 @@ public class PizzaStore {
     final Client client = openFeatureAPI.getClient();
 
     client.onProviderError((EventDetails eventDetails) -> {
-      System.out.println("FlagD Provider Error: " + eventDetails);
+      System.out.println("FlagD Provider has thrown an Error: " + eventDetails);
     });
 
     client.onProviderReady((EventDetails eventDetails)-> {
-      System.out.println("FlagD Provider Ready " + eventDetails);
+      System.out.println("FlagD Provider is Ready! " + eventDetails);
     });
 
     // get a bool flag value
-    boolean flagValue = client.getBooleanValue("v2_enabled", false);
+    Boolean flagValue = client.getBooleanValue("v2_enabled", false);
     FlagEvaluationDetails<Boolean> flagValue1 = client.getBooleanDetails("v2_enabled", false);
 
-    System.out.println("Boolean flagValue is: " + flagValue);
-    System.out.println("EvaluationDetails flagValue1 is: " + flagValue1);
+    System.out.println("Feature flag returned is: " + flagValue);
+    System.out.println("Boolean FlagEvaluationDetails is: " + flagValue1);
 
     return flagValue;
   }

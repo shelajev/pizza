@@ -1,6 +1,13 @@
 package io.diagrid.dapr;
 
+import dev.openfeature.sdk.EvaluationContext;
+import dev.openfeature.sdk.ImmutableContext;
 import dev.openfeature.sdk.OpenFeatureAPI;
+import dev.openfeature.sdk.Value;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,19 +23,22 @@ public class OpenFeatureBeans {
   private static String fport = System.getenv("FLAGD_PORT");
   private static String flagdPort = (fport == null) ? "8013" : fport;
 
+  private static String fdeadline = System.getenv("FLAGD_DEADLINE_MS");
+  private static String flagdDeadline = (fdeadline == null) ? "1000" : fdeadline;
+
   @Bean
   public OpenFeatureAPI OpenFeatureAPI() {
       final OpenFeatureAPI openFeatureAPI = OpenFeatureAPI.getInstance();
+      
       // Use flagd as the OpenFeature provider and use default configurations
-
-      // Create a flagd instance with default options
       FlagdProvider flagd = new FlagdProvider(FlagdOptions.builder()
       .host(flagdHost)
       .port(Integer.parseInt(flagdPort))
+      .deadline(Integer.parseInt(flagdDeadline))
       .build()
       );
 
-      openFeatureAPI.setProvider(flagd);
+      openFeatureAPI.setProviderAndWait(flagd);
       return openFeatureAPI;
   }
 }

@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: pizza-store-service
-        image: alicejgibbons/pizza-store:latest
+        image: alicejgibbons/pizza-store:1.0
         imagePullPolicy: Always
         env:
         - name: JAVA_OPTS
@@ -36,6 +36,8 @@ spec:
           value: "8013"
         - name: FLAGD_HOST
           value: "localhost"
+        - name: FLAGD_DEADLINE_MS
+          value: "1000"
         livenessProbe:
           httpGet:
             path: /actuator/health
@@ -64,4 +66,4 @@ spec:
   ports:
   - port: 80
     targetPort: 8080
-  type: LoadBalancer
+#  type: LoadBalancer
