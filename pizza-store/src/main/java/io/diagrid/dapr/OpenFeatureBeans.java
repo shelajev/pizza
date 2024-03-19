@@ -1,13 +1,11 @@
 package io.diagrid.dapr;
 
-import dev.openfeature.sdk.EvaluationContext;
-import dev.openfeature.sdk.ImmutableContext;
-import dev.openfeature.sdk.OpenFeatureAPI;
-import dev.openfeature.sdk.Value;
+import dev.openfeature.sdk.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,29 +14,34 @@ import dev.openfeature.contrib.providers.flagd.FlagdProvider;
 
 @Configuration
 public class OpenFeatureBeans {
+    @Value("${FLAGD_HOST:localhost}")
+    private String flagdHost;
 
-  private static String fhost = System.getenv("FLAGD_HOST");
-  private static String flagdHost = (fhost == null) ? "localhost" : fhost;
-  
-  private static String fport = System.getenv("FLAGD_PORT");
-  private static String flagdPort = (fport == null) ? "8013" : fport;
+    @Value("${FLAGD_PRT:8013}")
+    private String flagdPort;
 
-  private static String fdeadline = System.getenv("FLAGD_DEADLINE_MS");
-  private static String flagdDeadline = (fdeadline == null) ? "1000" : fdeadline;
+    @Value("${FLAGD_DEADLINE_MS:1000}")
+    private String flagdDeadline;
 
-  @Bean
-  public OpenFeatureAPI OpenFeatureAPI() {
-      final OpenFeatureAPI openFeatureAPI = OpenFeatureAPI.getInstance();
-      
-      // Use flagd as the OpenFeature provider and use default configurations
-      FlagdProvider flagd = new FlagdProvider(FlagdOptions.builder()
-      .host(flagdHost)
-      .port(Integer.parseInt(flagdPort))
-      .deadline(Integer.parseInt(flagdDeadline))
-      .build()
-      );
+    @Bean
+    public OpenFeatureAPI OpenFeatureAPI() {
+        final OpenFeatureAPI openFeatureAPI = OpenFeatureAPI.getInstance();
 
-      openFeatureAPI.setProviderAndWait(flagd);
-      return openFeatureAPI;
-  }
+        // Use flagd as the OpenFeature provider and use default configurations
+        FlagdProvider flagd = new FlagdProvider(FlagdOptions.builder()
+                .host(flagdHost)
+                .port(Integer.parseInt(flagdPort))
+                .deadline(Integer.parseInt(flagdDeadline))
+                .build()
+        );
+
+        openFeatureAPI.setProviderAndWait(flagd);
+        return openFeatureAPI;
+    }
+
+    @Bean
+    public Client client(OpenFeatureAPI openFeatureAPI) {
+        return openFeatureAPI.getClient();
+    }
+
 }

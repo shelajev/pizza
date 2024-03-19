@@ -4,11 +4,10 @@ ddosify -config pizza-store/ddosify_order.json
 
 # Run flagd locally (docker)
 docker run \
-  --name flagd \
   -p 8013:8013 \
-  -v $(pwd):/pizza-store/flagd \
+  -v $(pwd)/pizza-store:/pizza-store \
   ghcr.io/open-feature/flagd:latest start \
-  --uri file:pizza-store/flagd/sampleFlag.flagd.json
+  --uri file:/pizza-store/src/main/resources/flagd/example_flags.flagd.json
 
 # Run flagd locally (process)
 flagd start \

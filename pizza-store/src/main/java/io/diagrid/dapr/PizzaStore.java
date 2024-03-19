@@ -55,7 +55,7 @@ public class PizzaStore {
   public boolean v2_enabled;
   public String backgroundColor =  v2_enabled ? "MediumSeaGreen" : "Gold";
 
-  private final OpenFeatureAPI openFeatureAPI;
+  private Client openFeatureClient;
 
   @GetMapping("/server-info")
   public Info getInfo(){
@@ -77,9 +77,9 @@ public class PizzaStore {
   }
 
   @Autowired
-  public PizzaStore(SimpMessagingTemplate simpMessagingTemplate, OpenFeatureAPI OFApi) {
+  public PizzaStore(SimpMessagingTemplate simpMessagingTemplate, Client openfeatureClient) {
     this.simpMessagingTemplate = simpMessagingTemplate;
-    this.openFeatureAPI = OFApi;
+    this.openFeatureClient = openfeatureClient;
   }
 
   // If an event comes in saying the order ready from the kitchen service then prepare the order for delivery
@@ -279,19 +279,17 @@ public class PizzaStore {
   }
 
   public boolean getFeatureFlagValue(){
-    final Client client = openFeatureAPI.getClient();
-
-    client.onProviderError((EventDetails eventDetails) -> {
+    openFeatureClient.onProviderError((EventDetails eventDetails) -> {
       System.out.println("FlagD Provider has thrown an Error: " + eventDetails);
     });
 
-    client.onProviderReady((EventDetails eventDetails)-> {
+    openFeatureClient.onProviderReady((EventDetails eventDetails)-> {
       System.out.println("FlagD Provider is Ready! " + eventDetails);
     });
 
     // get a bool flag value
-    Boolean flagValue = client.getBooleanValue("v2_enabled", false);
-    FlagEvaluationDetails<Boolean> flagValue1 = client.getBooleanDetails("v2_enabled", false);
+    Boolean flagValue = openFeatureClient.getBooleanValue("v2_enabled", false);
+    FlagEvaluationDetails<Boolean> flagValue1 = openFeatureClient.getBooleanDetails("v2_enabled", false);
 
     System.out.println("Feature flag returned is: " + flagValue);
     System.out.println("Boolean FlagEvaluationDetails is: " + flagValue1);

@@ -17,8 +17,7 @@ import static io.restassured.RestAssured.with;
 import java.util.Arrays;
 
 
-@SpringBootTest(classes=PizzaStoreAppTest.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Testcontainers
+@SpringBootTest(classes=ContainersConfig.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PizzaStoreTest {
 
     @LocalServerPort
