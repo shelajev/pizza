@@ -10,14 +10,10 @@ import org.wiremock.integrations.testcontainers.WireMockContainer;
 
 import io.diagrid.dapr.profiles.DaprBasicProfile;
 
-
-@SpringBootApplication
 public class PizzaStoreAppTest {
     public static void main(String[] args) {
         SpringApplication.from(PizzaStore::main)
                 .with(ContainersConfig.class)
                 .run(args);
     }
-
-
 }

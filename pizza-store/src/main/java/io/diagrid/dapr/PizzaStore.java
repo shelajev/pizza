@@ -55,12 +55,33 @@ public class PizzaStore {
   public boolean v2_enabled;
   public String backgroundColor =  v2_enabled ? "MediumSeaGreen" : "Gold";
 
-  private Client openFeatureClient;
+//  private Client openFeatureClient;
+
+//  public boolean getFeatureFlagValue(){
+//    openFeatureClient.onProviderError((EventDetails eventDetails) -> {
+//      System.out.println("FlagD Provider has thrown an Error: " + eventDetails);
+//    });
+//
+//    openFeatureClient.onProviderReady((EventDetails eventDetails)-> {
+//      System.out.println("FlagD Provider is Ready! " + eventDetails);
+//    });
+//
+//    // get a bool flag value
+//    Boolean flagValue = openFeatureClient.getBooleanValue("v2_enabled", false);
+//    FlagEvaluationDetails<Boolean> flagValue1 = openFeatureClient.getBooleanDetails("v2_enabled", false);
+//
+//    System.out.println("Feature flag returned is: " + flagValue);
+//    System.out.println("Boolean FlagEvaluationDetails is: " + flagValue1);
+//
+//    return flagValue;
+//  }
+
 
   @GetMapping("/server-info")
   public Info getInfo(){
-    v2_enabled = getFeatureFlagValue();
-    backgroundColor =  v2_enabled ? "MediumSeaGreen" : "Gold";
+//    v2_enabled = getFeatureFlagValue();
+//    backgroundColor =  v2_enabled ? "MediumSeaGreen" : "Gold";
+    backgroundColor =  "Gold";
     System.out.println("Changing color to " + backgroundColor);
     return new Info(publicIp, backgroundColor);
   }
@@ -77,10 +98,15 @@ public class PizzaStore {
   }
 
   @Autowired
-  public PizzaStore(SimpMessagingTemplate simpMessagingTemplate, Client openfeatureClient) {
+  public PizzaStore(SimpMessagingTemplate simpMessagingTemplate) {
     this.simpMessagingTemplate = simpMessagingTemplate;
-    this.openFeatureClient = openfeatureClient;
   }
+
+//  @Autowired
+//  public PizzaStore(SimpMessagingTemplate simpMessagingTemplate, Client openfeatureClient) {
+//    this.simpMessagingTemplate = simpMessagingTemplate;
+//    this.openFeatureClient = openfeatureClient;
+//  }
 
   // If an event comes in saying the order ready from the kitchen service then prepare the order for delivery
   @PostMapping(path = "/events", consumes = "application/cloudevents+json")
@@ -278,22 +304,5 @@ public class PizzaStore {
 
   }
 
-  public boolean getFeatureFlagValue(){
-    openFeatureClient.onProviderError((EventDetails eventDetails) -> {
-      System.out.println("FlagD Provider has thrown an Error: " + eventDetails);
-    });
 
-    openFeatureClient.onProviderReady((EventDetails eventDetails)-> {
-      System.out.println("FlagD Provider is Ready! " + eventDetails);
-    });
-
-    // get a bool flag value
-    Boolean flagValue = openFeatureClient.getBooleanValue("v2_enabled", false);
-    FlagEvaluationDetails<Boolean> flagValue1 = openFeatureClient.getBooleanDetails("v2_enabled", false);
-
-    System.out.println("Feature flag returned is: " + flagValue);
-    System.out.println("Boolean FlagEvaluationDetails is: " + flagValue1);
-
-    return flagValue;
-  }
 }

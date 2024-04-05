@@ -30,17 +30,12 @@ public class PizzaStoreTest {
     
     @Test
     public void testPlaceOrder() throws Exception {
-        
-       with().body(new Order(new Customer("oleg", "oleg@mail.com"), 
+       with().body(new Order(new Customer("oleg", "oleg@mail.com"),
                                 Arrays.asList(new OrderItem(PizzaType.pepperoni, 1))))
                                 .contentType(ContentType.JSON)
         .when()
         .request("POST", "/order")
         .then().assertThat().statusCode(200);
-        
-        
-
-        
     }
 
 }
